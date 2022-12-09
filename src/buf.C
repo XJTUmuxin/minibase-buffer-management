@@ -55,6 +55,9 @@ Status BufMgr::pinPage(PageId PageId_in_a_DB, Page*& page, int emptyPage) {
   else{
     page = bufPool+frame_num;
     //加入替换候选
+    if(bufDesc[frame_num].pin_count==0){
+      
+    }
   }
   bufDesc[frame_num].pin_count++;
   return OK;
