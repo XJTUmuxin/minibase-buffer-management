@@ -1,0 +1,15 @@
+
+Makefile: a sample makefile to compile your project,
+	  (suppose the file to implement class BufMgr is named as buf.C)
+
+buf.h : specifications for the class BufMgr
+
+main.C, test_driver.C, BMTester.C: the testing programs
+
+ErrProc.sample: a sample program to help you use the error protocol.
+
+You need to modify both the buf.h and buf.C for this project. Read the comments carefully in buf.h. You need to define and implement the necessary data structures and classes for the hash table as well as the queues. 
+
+A good idea is to read through and understand all the test cases in the BMTester.C.
+
+For the submission, remeber to do a "make clean" first and remove all the core_dump files that may have been produced. Then compress everything into a tgz file. Example: go to the folder that contains the proj2-assign, and type: tar czf yourlogin_proj2.tgz  ./proj2-assign

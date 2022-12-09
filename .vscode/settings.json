@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "main.C": "cpp",
+        "BMTester.C": "cpp",
+        "new_error.C": "cpp",
+        "page.C": "cpp",
+        "system_defs.C": "cpp",
+        "test_driver.C": "cpp",
+        "db.C": "cpp",
+        "buf.C": "cpp",
+        "new": "cpp",
+        "ostream": "cpp"
+    }
+}
