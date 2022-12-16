@@ -8,7 +8,11 @@
 
 #include "db.h"
 #include "page.h"
+#include<malloc.h>
 #include<vector>
+#include<list>
+
+#define HASHDEBUG 0
 
 
 #define NUMBUF 20   
@@ -23,7 +27,15 @@
 /*******************ALL BELOW are purely local to buffer Manager********/
 
 // You should create enums for internal errors in the buffer manager.
-enum bufErrCodes  { 
+enum bufErrCodes  {NOREPLACECANDIDATE,
+REPLACEMEMERR,
+PAGENOTFOUND,
+FRAMENOTINCAN,
+PINCOUNTERR,
+NONEWPAGEMEM,
+PINNEWPAGEERR,
+FREEPAGEERR,
+FREEPINEDPAGE
 };
 
 class Replacer;
@@ -36,9 +48,6 @@ public:
 };
 
 
-size_t hash_f(int value,int htsize){
-    return (abs(value)*5+7)%htsize;
-}
 
 template<typename T1,typename T2>
 class HashEntry{
@@ -59,29 +68,65 @@ private:
     T2 invaild_value;
 public:
     MiniHash(int htsize){
+        if(HASHDEBUG)cout<<"MiniHash construct"<<endl;
         this->htsize = htsize;
         buckets = new HashEntry<T1,T2>*[htsize]{nullptr};
+    }
+    ~MiniHash(){
+        if(HASHDEBUG)cout<<"MiniHash destruct"<<endl;
+        clear();
+        delete buckets;
+    }
+    size_t hash_f(T1 value,int htsize){
+        return (abs(value)*5+7)%htsize;
     }
     void set_invaild_value(T2 invaild_value){
         this->invaild_value = invaild_value;
     }
+    void print(ostream& ofs=cout){
+        if(HASHDEBUG)ofs<<"print hash_table"<<endl;
+        for(int i=0;i<htsize;++i){
+            ofs<<"bucket"<<i<<":"<<endl;
+            HashEntry<T1,T2>* temp = buckets[i];
+            int count = 0;
+            while(temp!=nullptr){
+                if(count>20){
+                    break;
+                }
+                ofs<<temp->key<<" "<<temp->value<<endl;
+                temp = temp->next;
+                count++;
+            }
+        }
+    }
     void insert(const T1& key,const T2& value){
+        if(HASHDEBUG){
+            print();
+            cout<<"hash_insert "<<key<<" "<<value<<endl;
+        }
         size_t index = hash_f(key,htsize);
         HashEntry<T1,T2>* temp = new HashEntry<T1,T2>(key,value);
         temp->next = buckets[index];
         buckets[index] = temp;
     }
     bool erase(const T1& key){
+        if(HASHDEBUG){
+            print();
+            cout<<"hash_erase "<<key<<endl;
+        }
         size_t index = hash_f(key,htsize);
         HashEntry<T1,T2>* temp = buckets[index];
         if(temp==nullptr)return false;
         if(temp->key==key){
             buckets[index] = temp->next;
+            delete temp;
             return true;
         }
         while(temp->next!=nullptr){
             if(temp->next->key==key){
+                auto temp2 = temp->next;
                 temp->next = temp->next->next;
+                delete temp2;
                 return true;
             }
             temp = temp->next;
@@ -89,14 +134,37 @@ public:
         return false;
     }
     T2 search(const T1& key){
+        if(HASHDEBUG){
+            print();
+            cout<<"hash_search "<<key<<endl;
+        }
         size_t index = hash_f(key,htsize);
         HashEntry<T1,T2>* temp = buckets[index];
         while (temp!=nullptr)
         {
-            if(temp->key==key)return temp->value;
+            //cout<<temp->key<<endl;
+            if(temp->key==key){
+                return temp->value;
+            }
             temp = temp->next;
         }
         return invaild_value;
+    }
+    void clear(){
+        if(HASHDEBUG){
+            print();
+            cout<<"hash clear"<<endl;
+        }
+        for(int i=0;i<htsize;++i){
+            HashEntry<T1,T2>* temp1 = buckets[i];
+            HashEntry<T1,T2>* temp2;
+            while(temp1!=nullptr){
+                temp2 = temp1->next;
+                delete temp1;
+                temp1 = temp2;
+            }
+            buckets[i] = nullptr;
+        }
     }
 };
 
@@ -106,6 +174,8 @@ private: // fill in this area
     Descriptor* bufDesc;
     MiniHash<PageId,int> hash_table;
     vector<int> free_frames;
+    list<int> loved;
+    list<int> hated;
 
 public:
 
@@ -118,6 +188,8 @@ public:
 	// representing one of several buffer pool replacement schemes.
 
     ~BufMgr();           // Flush all valid dirty pages to disk
+
+    void print();
 
     Status pinPage(PageId PageId_in_a_DB, Page*& page, int emptyPage=0);
         // Check if this page is in buffer pool, otherwise
@@ -155,6 +227,7 @@ public:
     {
       return unpinPage(globalPageId_in_a_DB, dirty, FALSE);
     }
+    Status removeFromCandidate(int frame_num);
 };
 
 #endif

@@ -23,7 +23,7 @@ SRCS = main.C buf.C BMTester.C test_driver.C \
 OBJS = $(SRCS:.C=.o)
 
 $(MAIN):  $(OBJS)
-	 $(CC) $(CFLAGS) $(INCLUDES) $(OBJS) hfpage.o -o $(MAIN) $(LFLAGS)
+	 $(CC) $(CFLAGS) $(INCLUDES) $(OBJS) -no-pie hfpage.o -o $(MAIN) $(LFLAGS)
 
 .C.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
