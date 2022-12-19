@@ -78,7 +78,7 @@ public:
         delete buckets;
     }
     size_t hash_f(T1 value,int htsize){
-        return (abs(value)*5+7)%htsize;
+        return (abs(value)*5+10)%htsize;
     }
     void set_invaild_value(T2 invaild_value){
         this->invaild_value = invaild_value;

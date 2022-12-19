@@ -39,6 +39,7 @@ BufMgr::BufMgr (int numbuf, Replacer *replacer):hash_table(HTSIZE) {
   }
 }
 
+//用于debug
 void BufMgr::print(){
   ofs<<"print bufDecs"<<endl;
   for(int i=0;i<NUMBUF;++i){
@@ -150,17 +151,7 @@ Status BufMgr::flushPage(PageId pageid) {
     if(write_status!=OK){
       return MINIBASE_FIRST_ERROR(BUFMGR,write_status);
     }
-    //bufDesc[frame_num].dirtybit = false;
   }
-  /*if(bufDesc[frame_num].pin_count==0){
-    removeFromCandidate(frame_num);
-  }
-  else{
-    bufDesc[frame_num].pin_count = 0;
-  }
-  bufDesc[frame_num].page_number = INVALID_PAGE;
-  hash_table.erase(pageid);
-  //free_frames.push_back(frame_num);*/
   return OK;
 }
     
@@ -241,15 +232,8 @@ Status BufMgr::flushAllPages(){
           return MINIBASE_CHAIN_ERROR(BUFMGR,write_status);
         }
       }
-      //free_frames.push_back(i);
-      //bufDesc[i].page_number = INVALID_PAGE;
     }
-    //bufDesc[i].dirtybit = false;
-    //bufDesc[i].pin_count = 0;
   }
-  /*hash_table.clear();
-  loved.clear();
-  hated.clear();*/
   return OK;
 }
 
