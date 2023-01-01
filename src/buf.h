@@ -186,6 +186,8 @@ public:
 	// Disregard the "replacer" parameter for now. In the full 
   	// implementation of minibase, it is a pointer to an object
 	// representing one of several buffer pool replacement schemes.
+    BufMgr (const BufMgr&) = delete;
+    BufMgr &operator=(const BufMgr&) = delete;
 
     ~BufMgr();           // Flush all valid dirty pages to disk
 

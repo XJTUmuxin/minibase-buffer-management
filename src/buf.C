@@ -35,7 +35,7 @@ BufMgr::BufMgr (int numbuf, Replacer *replacer):hash_table(HTSIZE) {
   bufDesc = new Descriptor[numbuf];
   hash_table.set_invaild_value(INVAILD_FRAME);
   for(int i=0;i<numbuf;++i){
-    free_frames.push_back(i);
+    free_frames.push_back(numbuf-1-i);
   }
 }
 
